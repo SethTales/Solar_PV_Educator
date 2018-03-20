@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>Solar PV Calculator</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"
+
+<body>
+    <div class="monthlyElec">
+        <table class="monthlyElecTable">
+            <tr>
+                <th>Month</th>
+                <th>Average Monthly kWh</th>
+            </tr>
+            {% for month in monthlyData %}
+            <tr>
+                <td>{{month.month}}</td>
+                <td>{{month.kwhPerMonth}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+
+
+
+</html>

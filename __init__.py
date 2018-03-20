@@ -1,0 +1,1 @@
+from .SolarCalc import app
