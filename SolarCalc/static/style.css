@@ -1,1 +1,9 @@
 
+body { font-family: sans-serif; }
+.monthlyElec { width: 600px; padding-bottom: 12px; }
+.monthlyElecTable { width: 100%; }
+.monthlyElecTable tr:nth-child(even) {background-color: lightgray}
+.monthlyElecTable th { padding: 10px; background-color: darkcyan; }
+.monthlyElecTable td { padding: 10px; }
+
+.inputs { width: 600px; border-top: 2px solid darkgray; padding-top: 12px; }
