@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<title>Solar PV Calculator</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"
+
+<body>
+    <div class="monthlyElec">
+        <table class="monthlyElecTable">
+            <tr>
+                <th>Month</th>
+                <th>Average Monthly kWh</th>
+            </tr>
+            {% for month in monthlyData %}
+            <tr>
+                <td>{{month.month}}</td>
+                <td>{{month.kwhPerMonth}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="inputs">
+        <form class="inputForms">
+            Zip Code:<br>
+            <input type="text" name="zip"><br>
+            Your cost per kwh($):<br>
+            <input type="text" name="costPerKwh"><br>
+            System Capacity(kw):<br>
+            <input type="text" name="sys_cap"><br>
+            Tilt Angle(degress):<br>
+            <input type="text" name="tilt"><br>
+            Azimuth Angle(degrees):<br>
+            <input type="text" name="azimuth"><br>
+            Losses(%):<br>
+            <input type="text" name="losses"><br>
+            
+
+        </form>
+    </div>
+</body>
+
+
+
+</html>
