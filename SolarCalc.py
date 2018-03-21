@@ -1,14 +1,16 @@
-import os, calendar, jinja2, json
+import os, calendar, jinja2
 from flask import Flask, request, session, g, redirect, abort, url_for, render_template, flash
+from SolarCalc.model import ElectricityInputs, ElectricityOutputs
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('SOLARCALC_SETTINGS', silent=True)
 
+ElecOutputs = ElectricityOutputs()
 
 @app.route('/')
 def initMonthTable():
-    kwh = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    kwh = ElecOutputs.ac_monthly
     month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     monthlyData = []
     for i in range (1, 12):
