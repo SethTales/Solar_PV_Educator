@@ -16,7 +16,15 @@ def initMonthTable():
     for i in range (1, 12):
         a_month = dict(month=month[i], kwhPerMonth=kwh[i])
         monthlyData.append(a_month)
-    return render_template('mainLayout.html', monthlyData = monthlyData)
+    
+    arrType = [ "Fixed - Open Rack", "Fixed - Roof Mounted", "1-Axis Tracker", "1-Axis Backtracker", "2-Axis Tracker"]
+    modType = ["Standard (14-17%)", "Premium (18-20%)", "Thin Film (~11%)"]
+ 
+    return render_template('mainLayout.html', monthlyData = monthlyData, arrType = arrType, modType = modType)
 
 if __name__ == "__main__":
     app.run()
+
+#ui = InitializeUI()
+#ui.initMonthTable()
+
