@@ -24,7 +24,7 @@
         <form class="inputForms">
             Zip Code:<br>
             <input type="text" name="zip"><br>
-            Your cost per kwh($):<br>
+            Your electric cost per kwh($):<br>
             <input type="text" name="costPerKwh"><br>
             System Capacity(kw):<br>
             <input type="text" name="sys_cap"><br>
@@ -34,10 +34,36 @@
             <input type="text" name="azimuth"><br>
             Losses(%):<br>
             <input type="text" name="losses"><br>
-            
-
         </form>
+    
+
+        <div class = "arrDropdown">
+            <option value = "">Array Type</option>
+            <select id="arrTypeDropdown" class = "arrDropdownContent">       
+                {% for arr in arrType %}
+                    <option value = {{arr.arr}}>{{ arr }}</option>
+                {% endfor %}
+                
+            </select>
+        </div>
+
+        <div class = "modDropdown">
+            <option value = "">Module Type</option>
+            <select id = "modTypeDropdown" class = "modDropdownContent">
+                {% for mod in modType %}
+                    <option value = {{mod.mod}}>{{ mod }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class = "button">
+            <button type = "button" class = "calcButton">Calculate</button>
+        </div>
     </div>
+
+
+    <script type=text/javascript src="{{
+        url_for('static', filename='jquery.js') }}"></script>
 </body>
 
 
