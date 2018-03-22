@@ -1,4 +1,3 @@
-
 import urllib.request, json
 
 class ElectricityInputs:
@@ -7,16 +6,16 @@ class ElectricityInputs:
         #GET request parameters for solar pv electricity production
         self.format = "json"
         self.api_key = "rH3Vxikvbxm5SnbW3Lxgs3c76L4hjbXph0NoQlzw"
-        self.sys_cap = 0.0
-        self.module_type = 0
-        self.losses = 14.0
-        self.array_type = 1
-        self.tilt = 0.0
-        self.azimuth = 0.0
+        self.sys_cap = "0.0"
+        self.module_type = "0"
+        self.losses = "14.0"
+        self.array_type = "1"
+        self.tilt = "0.0"
+        self.azimuth = "0.0"
         self.address = "#####" 
         self.apiRequestUrl = "https://developer.nrel.gov/api/pvwatts/v5." + self.format + "?" + "api_key=" + self.api_key + "&address=" + self.address + \
-        "&system_capacity=" + str(self.sys_cap) + "&azimuth=" + str(self.azimuth) + "&tilt=" + str(self.tilt) + "&array_type=" + str(self.array_type) + \
-        "&module_type=" + str(self.module_type) + "&losses=" + str(self.losses)
+        "&system_capacity=" + self.sys_cap + "&azimuth=" + self.azimuth + "&tilt=" + self.tilt + "&array_type=" + self.array_type + \
+        "&module_type=" + self.module_type + "&losses=" + self.losses
 
     def makeApiRequest(self):
         response = urllib.request.urlopen(self.apiRequestUrl)
