@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>Solar PV Calculator</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"
+
+<body>
+    <div class="monthlyElec">
+        <table class="monthlyElecTable">
+            <tr>
+                <th>Month</th>
+                <th>Average Monthly kWh</th>
+            </tr>
+            {% for month in monthlyData %}
+            <tr>
+                <td>{{month.month}}</td>
+                <td>{{month.kwhPerMonth}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class = "wrapper1">
+            <form class="form1" method="GET" action='/'>
+                <fieldset class="fieldset1">
+                    Zip Code:<br>
+                    <input type="text" name="zip" value = {{ zip }} ><br>
+                    Your electric cost per kwh($):<br>
+                    <input type="text" name="costPerKwh" value = {{ costPerKwh }} ><br>
+                    System Capacity(kw):<br>
+                    <input type="text" name="sys_cap" value = {{ sys_cap }}><br>
+                    Tilt Angle(degress):<br>
+                    <input type="text" name="tilt" value = {{ tilt }}><br> 
+                </fieldset>
+    
+                <fieldset class = "fieldset2">
+                    Azimuth Angle(degrees):<br>
+                    <input type="text" name="azimuth" value = {{ azimuth }}><br>
+                    Losses(%):<br>
+                    <input type="text" name="losses" value = {{ losses }}><br>
+                    <option value = "" name="arrType">Array Type</option>
+                    <select name="arrTypeDropdown" class = "arrDropdownContent">       
+                        <option name = "1" {% if arrTypeDropdown == "Fixed - open-rack"%} selected {% endif %}>Fixed - open-rack</option>
+                        <option name = "2" {% if arrTypeDropdown == "Fixed - roof-mounted"%} selected {% endif %}>Fixed - roof-mounted</option>
+                        <option name = "3" {% if arrTypeDropdown == "1-axis tracker"%} selected {% endif %}>1-axis tracker</option>
+                        <option name = "4" {% if arrTypeDropdown == "1-axis backtracker"%} selected {% endif %}>1-axis backtracker</option>
+                        <option name = "5" {% if arrTypeDropdown == "2-axis tracker"%} selected {% endif %}>2-axis tracker</option>
+                    </select>            
+                    <option value = "" name="modType">Module Type</option>
+                    <select name = "modTypeDropdown" class = "modDropdownContent">
+                        <option name = "1" {% if modTypeDropdown == "Standard (14-17%)"%} selected {% endif %}>Standard (14-17%)</option>
+                        <option name = "2" {% if modTypeDropdown == "Premium (18-20%)"%} selected {% endif %}>Premium (18-20%)</option>
+                        <option name = "3" {% if modTypeDropdown == "Thin-film (~11%)"%} selected {% endif %}>Thin-film (~11%)</option>
+                    </select>
+                    <input type = "submit" class = "calcButton" value="Clear"></input> 
+                </fieldset>
+                
+                <fieldset class="fieldset3">
+                    Annual kWh: <output name="annualKwh">{{outputs['anKwh']}}</output><br><br><br>
+                    Cost before incentives: <output name="costBeforeIncentives">${{outputs['lcEst']}} - ${{outputs['hcEst']}}</output><br><br><br>
+                    Cost after incentives: <output name="costAfterIncentives">${{outputs['lcEstIncentives']}} - ${{outputs['hcEstIncentives']}}</output><br><br><br>
+                </fieldset>
+    
+                <fieldset class="fieldset4">
+                    Breakeven year: <output name="breakeven">{{outputs['brkYearLow']}} - {{outputs['brkYearHigh']}}</output><br><br><br>
+                    10-year savings: <output name="10year">$ {{outputs['10yrSvgsLow']}} - $ {{outputs['10yrSvgsHigh']}}</output><br><br><br>
+                    20-year savings: <output name="20year">$ {{outputs['20yrSvgsLow']}} - $ {{outputs['20yrSvgsHigh']}}</output><br><br><br>
+                </fieldset>
+            </form>
+        </div>
+    <script type=text/javascript src="{{
+        url_for('static', filename='jquery.js') }}"></script>
+</body>
+</html>
+

@@ -1,14 +1,14 @@
-body { font-family: sans-serif; }
+body { font-family: sans-serif; height: 100%; }
 .monthlyElec { width: 600px; padding-bottom: 12px; }
 .monthlyElecTable { width: 100%; }
 .monthlyElecTable tr:nth-child(even) {background-color: lightgray}
 .monthlyElecTable th { padding: 10px; background-color: darkcyan; }
 .monthlyElecTable td { padding: 10px; }
 
-.inputs {width: 600px; border-top: 2px solid darkgray; padding-top: 12px; }
-
-.arrDropdown { position: relative; float: right; right: 120px; bottom: 290px; }
-.modDropdown { position: relative; float: right; left: 42px; bottom: 230px; }
-
-.button { position: relative; float: right; left: 136px; bottom: 76px; }
-.calcButton{ }
+.wrapper1 {width: 1512px; height: 250px; border-top: 2px solid darkgray; padding-top: 12px; padding-bottom: 12px; }
+.form1 {height: 100%; }
+.fieldset1 {width: 350px; height: 100%; position: relative; float: left; }
+.fieldset2 {width: 350px; height: 100%; position: relative; float: left; }
+.fieldset3 {width: 350px; height: 100%; position: relative; float: left; }
+.fieldset4 {width: 350px; height: 100%; position: relative; float: right; }
+.calcButton {background-color: lightgray; color: black; padding-left: 20px; padding-right: 20px; position: relative; margin-left: 50px;}
