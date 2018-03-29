@@ -20,52 +20,56 @@
         </table>
     </div>
 
-    <div class="inputs">
-        <form class="inputForms">
-            Zip Code:<br>
-            <input type="text" name="zip"><br>
-            Your electric cost per kwh($):<br>
-            <input type="text" name="costPerKwh"><br>
-            System Capacity(kw):<br>
-            <input type="text" name="sys_cap"><br>
-            Tilt Angle(degress):<br>
-            <input type="text" name="tilt"><br>
-            Azimuth Angle(degrees):<br>
-            <input type="text" name="azimuth"><br>
-            Losses(%):<br>
-            <input type="text" name="losses"><br>
+    <div class = "wrapper1">
+        <form class="form1" method="POST" action='/results'>
+            <fieldset class="fieldset1">
+                Zip Code:<br>
+                <input type="text" name="zip"><br>
+                Your electric cost per kwh($):<br>
+                <input type="text" name="costPerKwh"><br>
+                System Capacity(kw):<br>
+                <input type="text" name="sys_cap"><br>
+                Tilt Angle(degress):<br>
+                <input type="text" name="tilt"><br>        
+            </fieldset>
+
+            <fieldset class = "fieldset2">
+                Azimuth Angle(degrees):<br>
+                <input type="text" name="azimuth"><br>
+                Losses(%):<br>
+                <input type="text" name="losses"><br>
+                <option value = "" name="arrType">Array Type</option>
+                <select name="arrTypeDropdown" class = "arrDropdownContent">       
+                    <option name = "1">Fixed - open-rack</option>
+                    <option name = "2">Fixed - roof-mounted</option>
+                    <option name = "3">1-axis tracker</option>
+                    <option name = "4">1-axis backtracker</option>
+                    <option name = "5">2-axis tracker</option>
+                </select>            
+                <option value = "" name="modType">Module Type</option>
+                <select name = "modTypeDropdown" class = "modDropdownContent">
+                    <option name = "1">Standard (14-17%)</option>
+                    <option name = "2">Premium (18-20%)</option>
+                    <option name = "3">Thin-film (~11%)</option>
+                </select>
+                <input type = "submit" class = "calcButton" value="Calculate"></input> 
+            </fieldset>
+            
+            <fieldset class="fieldset3">
+                Annual kWh: <output name="annualKwh"></output><br><br><br>
+                Cost before incentives: <output name="costBeforeIncentives"></output><br><br><br>
+                Cost after incentives: <output name="costAfterIncentives"></output><br><br><br>
+            </fieldset>
+
+            <fieldset class="fieldset4">
+                Breakeven year: <output name="breakeven"></output><br><br><br>
+                10-year savings: <output name="10year"></output><br><br><br>
+                20-year savings: <output name="20year"></output><br><br><br>
+            </fieldset>
         </form>
-    
-
-        <div class = "arrDropdown">
-            <option value = "">Array Type</option>
-            <select id="arrTypeDropdown" class = "arrDropdownContent">       
-                {% for arr in arrType %}
-                    <option value = {{arr.arr}}>{{ arr }}</option>
-                {% endfor %}
-                
-            </select>
-        </div>
-
-        <div class = "modDropdown">
-            <option value = "">Module Type</option>
-            <select id = "modTypeDropdown" class = "modDropdownContent">
-                {% for mod in modType %}
-                    <option value = {{mod.mod}}>{{ mod }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class = "button">
-            <button type = "button" class = "calcButton">Calculate</button>
-        </div>
     </div>
-
-
     <script type=text/javascript src="{{
         url_for('static', filename='jquery.js') }}"></script>
 </body>
-
-
-
 </html>
+
