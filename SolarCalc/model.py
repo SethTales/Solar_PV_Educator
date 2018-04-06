@@ -21,7 +21,7 @@ class SolarDataProcessor:
         self.pvWattsJsonResponse = None
 
         #GET response parameters 
-        self.ac_monthly = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.ac_monthly = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0   ]
         self.ac_annual = None
         self.capacity_factor = None
         self.station_state = ""
@@ -101,8 +101,13 @@ class SolarDataProcessor:
         return(jsonResponse)
     
     def parsePvWattsResponse(self):
+        #
+        # tempList = []
         for i in range (0, 12):
+            #tempList.append((self.pvWattsJsonResponse["outputs"]["ac_monthly"][i]))
+            #self.ac_monthly[i] = (['{0:.2f}'.format(tempList[i])])
             self.ac_monthly[i] = (self.pvWattsJsonResponse["outputs"]["ac_monthly"][i])
+        print(self.ac_monthly)
         self.ac_annual = (self.pvWattsJsonResponse["outputs"]["ac_annual"])
         print(self.ac_annual)
         self.capacity_factor = (self.pvWattsJsonResponse["outputs"]["capacity_factor"])
@@ -114,30 +119,37 @@ class SolarDataProcessor:
 
     def calculateCostsAndRoi(self):
         self.lowCostEstimate = self.lowAvgCostPerWatt * float(self.sys_cap) * 1000
-        self.highCostEstimate = self.highAvgCostPerWatt * float(self.sys_cap) * 1000
-
-        print(self.lowCostEstimate)
-        print(self.highCostEstimate)
+        self.highCostEstimate = self.highAvgCostPerWatt * float(self.sys_cap) * 1000      
 
         self.lowCostAfterIncentives = self.lowCostEstimate * 0.70
-        self.highCostAfterIncentives = self.highCostEstimate * 0.70
-
-        print(self.lowCostAfterIncentives)
-        print(self.highCostAfterIncentives)
+        self.highCostAfterIncentives = self.highCostEstimate * 0.70       
 
         self.breakevenYearLow = self.lowCostAfterIncentives / (float(self.ac_annual) * float(self.elecCost))
-        self.breakevenYearHigh = self.highCostAfterIncentives / (float(self.ac_annual) * float(self.elecCost))
-        self.breakevenYearLow = int(self.breakevenYearLow)
-        self.breakevenYearHigh = int(self.breakevenYearHigh)
-
-        print(self.breakevenYearLow)
-        print(self.breakevenYearHigh)
+        self.breakevenYearHigh = self.highCostAfterIncentives / (float(self.ac_annual) * float(self.elecCost))          
 
         self.tenYearSavingsLow = (float(self.ac_annual) * float(self.elecCost) * 10) - self.highCostAfterIncentives 
         self.tenYearSavingsHigh = (float(self.ac_annual) * float(self.elecCost) * 10) - self.lowCostAfterIncentives 
         self.twentyYearSavingsLow = (float(self.ac_annual) * float(self.elecCost) * 20) - self.highCostAfterIncentives 
         self.twentyYearSavingsHigh = (float(self.ac_annual) * float(self.elecCost) * 20) - self.lowCostAfterIncentives 
 
+        self.ac_annual = "{:.2f}".format(self.ac_annual)
+        self.lowCostEstimate = "{:.2f}".format(self.lowCostEstimate)
+        self.highCostEstimate = "{:.2f}".format(self.highCostEstimate)
+        self.lowCostAfterIncentives = "{:.2f}".format(self.lowCostAfterIncentives)
+        self.highCostAfterIncentives = "{:.2f}".format(self.highCostAfterIncentives)
+        self.breakevenYearLow = int(self.breakevenYearLow)
+        self.breakevenYearHigh = int(self.breakevenYearHigh)
+        self.tenYearSavingsLow = "{:.2f}".format(self.tenYearSavingsLow)
+        self.tenYearSavingsHigh = "{:.2f}".format(self.tenYearSavingsHigh)
+        self.twentyYearSavingsLow = "{:.2f}".format(self.twentyYearSavingsLow)
+        self.twentyYearSavingsHigh = "{:.2f}".format(self.twentyYearSavingsHigh)
+
+        print(self.lowCostEstimate)
+        print(self.highCostEstimate)
+        print(self.lowCostAfterIncentives)
+        print(self.highCostAfterIncentives)
+        print(self.breakevenYearLow)
+        print(self.breakevenYearHigh)
         print(self.tenYearSavingsLow)
         print(self.tenYearSavingsHigh)
         print(self.twentyYearSavingsLow)

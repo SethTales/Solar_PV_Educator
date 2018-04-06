@@ -46,7 +46,9 @@ def electricityInputData():
     print(requestParams)
     solarDataProcessor.calculateRequestProcessor(requestParams)
     outputs = solarDataProcessor.getOutputs()
-    
+    for k, v in outputs.items():
+        print(k, v)
+   
     #passRequestParams(requestParams)
 
     monthlyData = resetMonthlyElecData()
