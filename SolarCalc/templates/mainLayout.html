@@ -2,7 +2,8 @@
 <html lang="en">
 
 <title>Solar PV Calculator</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<script type=text/javascript src="{{ url_for('static', filename='script.js') }}"></script>
 
 <body>
     <div class="monthlyElec">
@@ -14,7 +15,7 @@
             {% for month in monthlyData %}
             <tr>
                 <td>{{month.month}}</td>
-                <td>{{month.kwhPerMonth}}</td>
+                <td>{{"{0:.2f}".format(month.kwhPerMonth)}}</td>
             </tr>
             {% endfor %}
         </table>
@@ -23,22 +24,33 @@
     <div class = "wrapper1">
         <form class="form1" method="POST" action='/results'>
             <fieldset class="fieldset1">
-                Zip Code:<br>
-                <input type="text" name="zip"><br>
-                Your electric cost per kwh($):<br>
-                <input type="text" name="costPerKwh"><br>
-                System Capacity(kw):<br>
-                <input type="text" name="sys_cap"><br>
-                Tilt Angle(degress):<br>
-                <input type="text" name="tilt"><br>        
+                <label for ="zip">Zip Code:</label><br>
+                <input type="text" name="zip" id="zip" title="5 digit ZIP code" maxlength="5" onkeyup="validateZip()"><br>
+                <span class ="error" id="zipCodeError">Enter a valid 5-digit zip code</span><br>
+                
+                <label for="costPerKwh">Your electric cost per kwh($):</label><br>
+                <input type="text" name="costPerKwh" id="costPerKwh" title="Find on your electric bill" maxlength="5" onkeyup="validateCostPerKwh()"><br>
+                <span class ="error" id="costPerKwhError">Enter a $ amount between 0.010-0.999</span><br>
+                
+                <label for="sys_cap">System Capacity(kw):</label><br>
+                <input type="text" name="sys_cap" id="sys_cap" title="Array capacity in kw, 0.05-500000" maxlength="6" onkeyup="validateSysCap()"><br>
+                <span class ="error" id="sys_capError">Enter a number between 0.05-500000</span><br>
+                
+                <label for="tilt">Tilt Angle(degress):</label><br>
+                <input type="text" name="tilt" id="tilt" title="Title angle, 0-90 degrees" maxlength="2" onkeyup="validateTilt()"><br>
+                <span class ="error" id="tiltError">Enter a number between 0-90</span><br>        
             </fieldset>
 
             <fieldset class = "fieldset2">
-                Azimuth Angle(degrees):<br>
-                <input type="text" name="azimuth"><br>
-                Losses(%):<br>
-                <input type="text" name="losses"><br>
-                <option value = "" name="arrType">Array Type</option>
+                <label for="azimuth">Azimuth(degrees):</label><br>
+                <input type="text" name="azimuth" id="azimuth" title="Direction the panels point, 0-180" maxlength="5" onkeyup="validateAzimuth()"><br>
+                <span class ="error" id="azimuthError">Enter a number from 0-359.9</span><br>
+                
+                <label for="losses">Losses(%):</label><br>
+                <input type="text" name="losses" id="losses" title="Losses from inefficiences" maxlength="2" onkeyup="validateLosses()"><br>
+                <span class ="error" id="lossesError">Enter a number from 0-99</span><br>
+                
+                <option value = "" name="arrType" >Array Type</option>
                 <select name="arrTypeDropdown" class = "arrDropdownContent">       
                     <option name = "1">Fixed - open-rack</option>
                     <option name = "2">Fixed - roof-mounted</option>
@@ -46,30 +58,29 @@
                     <option name = "4">1-axis backtracker</option>
                     <option name = "5">2-axis tracker</option>
                 </select>            
+                
                 <option value = "" name="modType">Module Type</option>
                 <select name = "modTypeDropdown" class = "modDropdownContent">
                     <option name = "1">Standard (14-17%)</option>
                     <option name = "2">Premium (18-20%)</option>
                     <option name = "3">Thin-film (~11%)</option>
                 </select>
-                <input type = "submit" class = "calcButton" value="Calculate"></input> 
+                <input type ="submit" class ="calcButton" value="Calculate" id="submit" onclick="return validateForm();"></input> 
             </fieldset>
             
             <fieldset class="fieldset3">
                 Annual kWh: <output name="annualKwh"></output><br><br><br>
-                Cost before incentives: <output name="costBeforeIncentives"></output><br><br><br>
-                Cost after incentives: <output name="costAfterIncentives"></output><br><br><br>
+                Estimated cost before incentives:<br> <output name="costBeforeIncentives"></output><br><br><br>
+                Estimated cost after incentives:<br> <output name="costAfterIncentives"></output><br><br><br>
             </fieldset>
 
             <fieldset class="fieldset4">
                 Breakeven year: <output name="breakeven"></output><br><br><br>
-                10-year savings: <output name="10year"></output><br><br><br>
-                20-year savings: <output name="20year"></output><br><br><br>
+                Estimated 10-year savings:<br> <output name="10year"></output><br><br><br>
+                Estimated 20-year savings:<br> <output name="20year"></output><br><br><br>
             </fieldset>
         </form>
     </div>
-    <script type=text/javascript src="{{
-        url_for('static', filename='jquery.js') }}"></script>
 </body>
 </html>
 
