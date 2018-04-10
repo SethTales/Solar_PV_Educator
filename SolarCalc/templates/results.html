@@ -2,42 +2,117 @@
 <html lang="en">
 
 <title>Solar PV Calculator</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<script type=text/javascript src="{{ url_for('static', filename='script.js') }}"></script>
 
-<body>
-    <div class="monthlyElec">
-        <table class="monthlyElecTable">
-            <tr>
-                <th>Month</th>
-                <th>Average Monthly kWh</th>
-            </tr>
-            {% for month in monthlyData %}
-            <tr>
-                <td>{{month.month}}</td>
-                <td>{{"{:.2f}".format(month.kwhPerMonth)}}</td>
-            </tr>
-            {% endfor %}
-        </table>
+<body onload="displayResultsMessage()">
+    <div class="wrapper1">
+        <div class="monthlyElec">
+            <table class="monthlyElecTable">
+                <tr>
+                    <th>Month</th>
+                    <th>Average Monthly kWh</th>
+                </tr>
+                {% for month in monthlyData %}
+                <tr>
+                    <td>{{month.month}}</td>
+                    <td>{{"{:.2f}".format(month.kwhPerMonth)}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="tooltipDisplay" id="tooltipDisplay">
+            <h2 class ="header2" id="header2"></h2>
+            <p class="tooltipText" id="p1"></p>
+            <p class="tooltipText" id="p2"></p>
+            <p class="tooltipText" id="p3">
+                <div class="azimuthTableWrapper" id="azimuthTableWrapper">
+                    <table class="azimuthTable" id="azimuthTable">
+                        <tr> 
+                            <td>N</td> 
+                            <td>0&deg</td> 
+                            <td>S</td> 
+                            <td>180&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>N-NE</td>
+                            <td>22.5&deg</td>
+                            <td>S-SW</td>
+                            <td>202.5&deg</td>
+                        </tr> 
+                        <tr> 
+                            <td>NE</td> 
+                            <td>45&deg</td> 
+                            <td>SW</td>
+                            <td>225&deg</td>
+                        </tr> 
+                        <tr> 
+                            <td>E-NE</td> 
+                            <td>67.5&deg</td> 
+                            <td>W-SW</td> 
+                            <td>247.5&deg</td> 
+                        </tr> 
+                        <tr>
+                            <td>E</td> 
+                            <td>90&deg</td> 
+                            <td>W</td> 
+                            <td>270&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>E-SE</td> 
+                            <td>112.5&deg</td> 
+                            <td>W-NW</td>
+                            <td>292.5&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>SE</td> 
+                            <td>135&deg</td> 
+                            <td>NW</td> 
+                            <td>315&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>S-SE</td> 
+                            <td>157.5&deg</td> 
+                            <td>N-NW</td> 
+                            <td>337.5&deg</td> 
+                        </tr>
+                    </table>
+                </div>
+            </p>
+        </div>
     </div>
 
-    <div class = "wrapper1">
+    <div class = "wrapper2">
         <form class="form1" method="GET" action='/'>
             <fieldset class="fieldset1">
                 Zip Code:<br>
-                <input type="text" name="zip" readonly value = {{ zip }} ><br>
+                <input type="text" name="zip" readonly value = {{ zip }} >
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="zipInfo"></img><br>
+
                 Your electric cost per kwh($):<br>
-                <input type="text" name="costPerKwh" readonly value = {{ costPerKwh }} ><br>
+                <input type="text" name="costPerKwh" readonly value = {{ costPerKwh }} >
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costPerKwhInfo"></img><br>
+
                 System Capacity(kw):<br>
-                <input type="text" name="sys_cap" readonly value = {{ sys_cap }}><br>
+                <input type="text" name="sys_cap" readonly value = {{ sys_cap }}>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="sys_capInfo"></img><br>
+
                 Tilt Angle(degress):<br>
-                <input type="text" name="tilt" readonly value = {{ tilt }}><br> 
+                <input type="text" name="tilt" readonly value = {{ tilt }}>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="tiltInfo"></img><br>
+
             </fieldset>
 
             <fieldset class = "fieldset2">
                 Azimuth Angle(degrees):<br>
-                <input type="text" name="azimuth" readonly value = {{ azimuth }}><br>
+                <input type="text" name="azimuth" readonly value = {{ azimuth }}>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="azimuthInfo"></img><br>
+
                 Losses(%):<br>
-                <input type="text" name="losses" readonly value = {{ losses }}><br>
+                <input type="text" name="losses" readonly value = {{ losses }}>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="lossesInfo"></img><br>
+
                 <option value = "" name="arrType">Array Type</option>
                 <select name="arrTypeDropdown" class = "arrDropdownContent" disabled>       
                     <option name = "1" {% if arrTypeDropdown == "Fixed - open-rack"%} selected {% endif %}>Fixed - open-rack</option>
@@ -45,25 +120,38 @@
                     <option name = "3" {% if arrTypeDropdown == "1-axis tracker"%} selected {% endif %}>1-axis tracker</option>
                     <option name = "4" {% if arrTypeDropdown == "1-axis backtracker"%} selected {% endif %}>1-axis backtracker</option>
                     <option name = "5" {% if arrTypeDropdown == "2-axis tracker"%} selected {% endif %}>2-axis tracker</option>
-                </select>            
+                </select>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="arrTypeInfo"></img>
+
                 <option value = "" name="modType">Module Type</option>
                 <select name = "modTypeDropdown" class = "modDropdownContent" disabled>
                     <option name = "1" {% if modTypeDropdown == "Standard (14-17%)"%} selected {% endif %}>Standard (14-17%)</option>
                     <option name = "2" {% if modTypeDropdown == "Premium (18-20%)"%} selected {% endif %}>Premium (18-20%)</option>
                     <option name = "3" {% if modTypeDropdown == "Thin-film (~11%)"%} selected {% endif %}>Thin-film (~11%)</option>
                 </select>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="modTypeInfo"></img>
                 <input type = "submit" class = "calcButton" value="Clear"></input> 
             </fieldset>
             
             <fieldset class="fieldset3">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="annualKwhInfo"></img>
                 Annual kWh: <output name="annualKwh">{{outputs['anKwh']}}</output><br><br><br>
+
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costBeforeIncentivesInfo"></img>
                 Estimated cost before incentives:<br> <output name="costBeforeIncentives">${{outputs['lcEst']}} - ${{outputs['hcEst']}}</output><br><br><br>
+
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costAfterIncentivesInfo"></img>
                 Estimated cost after incentives:<br> <output name="costAfterIncentives">${{outputs['lcEstIncentives']}} - ${{outputs['hcEstIncentives']}}</output><br><br><br>
             </fieldset>
 
             <fieldset class="fieldset4">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="breakevenInfo"></img>
                 Estimated breakeven year: <output name="breakeven">{{outputs['brkYearLow']}} - {{outputs['brkYearHigh']}}</output><br><br><br>
+
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="10YearSavingsInfo"></img>
                 Estimated 10-year savings:<br> <output name="10year">$ {{outputs['10yrSvgsLow']}} - $ {{outputs['10yrSvgsHigh']}}</output><br><br><br>
+
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="20YearSavingsInfo"></img>
                 Estimated 20-year savings:<br> <output name="20year">$ {{outputs['20yrSvgsLow']}} - $ {{outputs['20yrSvgsHigh']}}</output><br><br><br>
             </fieldset>
         </form>
