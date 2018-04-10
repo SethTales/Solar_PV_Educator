@@ -1,11 +1,19 @@
 body { font-family: sans-serif; height: 100%; }
-.monthlyElec { width: 600px; padding-bottom: 12px; }
-.monthlyElecTable { width: 100%; }
+
+.wrapper1{width: 1512px; height: 550px;}
+.monthlyElec { width: 500px; padding-bottom: 12px;}
+.monthlyElecTable { width: 100%; position: relative; float: left; padding-right: 12px;}
 .monthlyElecTable tr:nth-child(even) {background-color: lightgray}
 .monthlyElecTable th { padding: 10px; background-color: darkcyan; }
 .monthlyElecTable td { padding: 10px; }
+.tooltipDisplay {position: relative; float: left; width: 400px; height: 500px; padding-left: 12px; border-left: 2px solid darkgray; border-right: 2px solid darkgray;}
+.header2 {text-align: center;}
 
-.wrapper1 {width: 1512px; height: 250px; border-top: 2px solid darkgray; padding-top: 12px; padding-bottom: 12px; }
+.azimuthTable {display: none; width: 100%;}
+.azimuthTableWrapper {margin-left: auto; margin-right: auto; width: 250px; }
+.azimuthTable td {border: 1px solid black;}
+
+.wrapper2 {width: 1512px; height: 250px; border-top: 2px solid darkgray; padding-top: 12px; padding-bottom: 12px; }
 .form1 {height: 100%; }
 .fieldset1 {width: 350px; height: 100%; position: relative; float: left; }
 .fieldset2 {width: 350px; height: 100%; position: relative; float: left; }
@@ -13,5 +21,4 @@ body { font-family: sans-serif; height: 100%; }
 .fieldset4 {width: 350px; height: 100%; position: relative; float: right; }
 .calcButton {background-color: lightgray; color: black; padding-left: 20px; padding-right: 20px; position: relative; margin-left: 50px;}
 .error {display: none; font-size: 10px; color: red; float: bottom;}
-input.invalid, textarea.invalid {border: 2px solid red;}
-input.valid, textarea.valid {border: 2px solid green;}
+

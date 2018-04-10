@@ -5,49 +5,117 @@
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <script type=text/javascript src="{{ url_for('static', filename='script.js') }}"></script>
 
-<body>
-    <div class="monthlyElec">
-        <table class="monthlyElecTable">
-            <tr>
-                <th>Month</th>
-                <th>Average Monthly kWh</th>
-            </tr>
-            {% for month in monthlyData %}
-            <tr>
-                <td>{{month.month}}</td>
-                <td>{{"{0:.2f}".format(month.kwhPerMonth)}}</td>
-            </tr>
-            {% endfor %}
-        </table>
+<body onload="displayWelcomeMessage()">
+    <div class="wrapper1">
+        <div class="monthlyElec">
+            <table class="monthlyElecTable">
+                <tr>
+                    <th>Month</th>
+                    <th>Average Monthly kWh</th>
+                </tr>
+                {% for month in monthlyData %}
+                <tr>
+                    <td>{{month.month}}</td>
+                    <td>{{"{0:.2f}".format(month.kwhPerMonth)}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="tooltipDisplay" id="tooltipDisplay">
+            <h2 class ="header2" id="header2"></h2>
+            <p class="tooltipText" id="p1"></p>
+            <p class="tooltipText" id="p2"></p>
+            <p class="tooltipText" id="p3">
+                <div class="azimuthTableWrapper" id="azimuthTableWrapper">
+                    <table class="azimuthTable" id="azimuthTable">
+                        <tr> 
+                            <td>N</td> 
+                            <td>0&deg</td> 
+                            <td>S</td> 
+                            <td>180&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>N-NE</td>
+                            <td>22.5&deg</td>
+                            <td>S-SW</td>
+                            <td>202.5&deg</td>
+                        </tr> 
+                        <tr> 
+                            <td>NE</td> 
+                            <td>45&deg</td> 
+                            <td>SW</td>
+                            <td>225&deg</td>
+                        </tr> 
+                        <tr> 
+                            <td>E-NE</td> 
+                            <td>67.5&deg</td> 
+                            <td>W-SW</td> 
+                            <td>247.5&deg</td> 
+                        </tr> 
+                        <tr>
+                            <td>E</td> 
+                            <td>90&deg</td> 
+                            <td>W</td> 
+                            <td>270&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>E-SE</td> 
+                            <td>112.5&deg</td> 
+                            <td>W-NW</td>
+                            <td>292.5&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>SE</td> 
+                            <td>135&deg</td> 
+                            <td>NW</td> 
+                            <td>315&deg</td> 
+                        </tr> 
+                        <tr> 
+                            <td>S-SE</td> 
+                            <td>157.5&deg</td> 
+                            <td>N-NW</td> 
+                            <td>337.5&deg</td> 
+                        </tr>
+                    </table>
+                </div>
+            </p>
+        </div>
     </div>
 
-    <div class = "wrapper1">
+    <div class = "wrapper2">
         <form class="form1" method="POST" action='/results'>
             <fieldset class="fieldset1">
                 <label for ="zip">Zip Code:</label><br>
-                <input type="text" name="zip" id="zip" title="5 digit ZIP code" maxlength="5" onkeyup="validateZip()"><br>
+                <input type="text" name="zip" id="zip" title="5 digit ZIP code" maxlength="5" onkeyup="validateZip()">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="zipInfo"></img><br>
                 <span class ="error" id="zipCodeError">Enter a valid 5-digit zip code</span><br>
                 
                 <label for="costPerKwh">Your electric cost per kwh($):</label><br>
-                <input type="text" name="costPerKwh" id="costPerKwh" title="Find on your electric bill" maxlength="5" onkeyup="validateCostPerKwh()"><br>
+                <input type="text" name="costPerKwh" id="costPerKwh" title="Find on your electric bill" maxlength="5" onkeyup="validateCostPerKwh()">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costPerKwhInfo"></img><br>
                 <span class ="error" id="costPerKwhError">Enter a $ amount between 0.010-0.999</span><br>
                 
                 <label for="sys_cap">System Capacity(kw):</label><br>
-                <input type="text" name="sys_cap" id="sys_cap" title="Array capacity in kw, 0.05-500000" maxlength="6" onkeyup="validateSysCap()"><br>
+                <input type="text" name="sys_cap" id="sys_cap" title="Array capacity in kw, 0.05-500000" maxlength="6" onkeyup="validateSysCap()">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="sys_capInfo"></img><br>
                 <span class ="error" id="sys_capError">Enter a number between 0.05-500000</span><br>
                 
                 <label for="tilt">Tilt Angle(degress):</label><br>
-                <input type="text" name="tilt" id="tilt" title="Title angle, 0-90 degrees" maxlength="2" onkeyup="validateTilt()"><br>
+                <input type="text" name="tilt" id="tilt" title="Title angle, 0-90 degrees" maxlength="2" onkeyup="validateTilt()">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="tiltInfo"></img><br>
                 <span class ="error" id="tiltError">Enter a number between 0-90</span><br>        
             </fieldset>
 
             <fieldset class = "fieldset2">
                 <label for="azimuth">Azimuth(degrees):</label><br>
-                <input type="text" name="azimuth" id="azimuth" title="Direction the panels point, 0-180" maxlength="5" onkeyup="validateAzimuth()"><br>
+                <input type="text" name="azimuth" id="azimuth" title="Direction the panels point, 0-180" maxlength="5" onkeyup="validateAzimuth()">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="azimuthInfo"></img><br>
                 <span class ="error" id="azimuthError">Enter a number from 0-359.9</span><br>
                 
                 <label for="losses">Losses(%):</label><br>
-                <input type="text" name="losses" id="losses" title="Losses from inefficiences" maxlength="2" onkeyup="validateLosses()"><br>
+                <input type="text" name="losses" id="losses" title="Losses from inefficiences" maxlength="2" onkeyup="validateLosses()">
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="lossesInfo"></img><br>
                 <span class ="error" id="lossesError">Enter a number from 0-99</span><br>
                 
                 <option value = "" name="arrType" >Array Type</option>
@@ -57,7 +125,8 @@
                     <option name = "3">1-axis tracker</option>
                     <option name = "4">1-axis backtracker</option>
                     <option name = "5">2-axis tracker</option>
-                </select>            
+                </select>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="arrTypeInfo"></img>            
                 
                 <option value = "" name="modType">Module Type</option>
                 <select name = "modTypeDropdown" class = "modDropdownContent">
@@ -65,6 +134,7 @@
                     <option name = "2">Premium (18-20%)</option>
                     <option name = "3">Thin-film (~11%)</option>
                 </select>
+                <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="modTypeInfo"></img>
                 <input type ="submit" class ="calcButton" value="Calculate" id="submit" onclick="return validateForm();"></input> 
             </fieldset>
             
