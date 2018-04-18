@@ -60,7 +60,7 @@ function populateIncentivesTable(jsonResponse)
 
         cell1.innerHTML = category;
         cell2.innerHTML = name;
-        cell3.innerHTML = '<a href="url">' + url + '</a>';
+        cell3.innerHTML = "<a href=" + url + ">" + url + "</a>";
         cell4.innerHTML = type;
     }
 }
