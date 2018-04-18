@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+<meta charset="utf-8">
 
 <title>Solar PV Calculator</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-<script type=text/javascript src="{{ url_for('static', filename='script.js') }}"></script>
+<script type=text/javascript src="{{ url_for('static', filename='form.js') }}"></script>
+<script type=text/javascript src="{{ url_for('static', filename='incentivesScript.js') }}"></script>
 
-<body onload="displayResultsMessage()">
+<body onload="displayResultsMessage(); sendApiRequest()">
     <div class="wrapper1">
         <div class="monthlyElec">
             <table class="monthlyElecTable">
@@ -81,17 +83,29 @@
                 </div>
             </p>
         </div>
+
+        <div class="incentives" name="incentives" id="incentives">
+            <div class="loader" name="loader" id="loader"></div>
+            <table class="incentivesTable" id="incentivesTable" name="incentivesTable">
+                <tr>
+                    <th class="category">Category</th>
+                    <th class="program">Program Name</th>
+                    <th class="url">Public URL</th>
+                    <th class="type">Region</th>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <div class = "wrapper2">
         <form class="form1" method="GET" action='/'>
             <fieldset class="fieldset1">
                 Zip Code:<br>
-                <input type="text" name="zip" readonly value = {{ zip }} >
+                <input type="text" name="zip" id="zip" readonly value = {{ zip }}>
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="zipInfo"></img><br>
 
                 Your electric cost per kwh($):<br>
-                <input type="text" name="costPerKwh" readonly value = {{ costPerKwh }} >
+                <input type="text" name="costPerKwh" readonly value = {{ costPerKwh }}>
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costPerKwhInfo"></img><br>
 
                 System Capacity(kw):<br>
