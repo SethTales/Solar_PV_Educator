@@ -3,7 +3,10 @@ import urllib.request, json, time
 class SolarDataProcessor:
     
     def __init__(self):
-        #GET request parameters for solar pv electricity production
+        #setting request parameters default values 
+        #see https://developer.nrel.gov/docs/solar/pvwatts-v5/ for more details
+        #all but elecCost are string, because they are part of pvWattsApiRequestUrl
+        #elecCost is float as it is used in calculations in functions below
         self.format = "json"
         self.api_key = "rH3Vxikvbxm5SnbW3Lxgs3c76L4hjbXph0NoQlzw"
         self.sys_cap = "0.0"
@@ -21,21 +24,12 @@ class SolarDataProcessor:
         self.pvWattsJsonResponse = None
 
         #GET response parameters 
-        self.ac_monthly = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0   ]
-        self.ac_annual = None
-        self.capacity_factor = None
+        self.ac_monthly = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.ac_annual = "0.0"
         self.station_state = ""
-        self.station_city = None
+        self.station_city = ""
 
-        #GET request parameters for open_pv
-        self.minsize = ""
-        self.maxsize = ""
-        self.mindate = ""
-        self.openPvApiRequestUrl = "https://developer.nrel.gov/api/solar/open_pv/installs/summaries?api_key=" + self.api_key + "&state=" + self.station_state \
-        + "&minsize=" + self.minsize + "&maxsize=" + self.maxsize + "&mindate=" + self.mindate
-        self.openPvJsonResponse = None
-
-        #GET response parameters for open_pv
+        #variables below are used for average cost calculations, ROI predictions and breakeven predictions
         self.highAvgCostPerWatt = 3.75
         self.lowAvgCostPerWatt = 2.75
 
@@ -48,18 +42,14 @@ class SolarDataProcessor:
         self.tenYearSavingsLow = 0
         self.tenYearSavingsHigh = 0
         self.twentyYearSavingsLow = 0
-        self.twentyYearSavingsHigh = 0  
-     
+        self.twentyYearSavingsHigh = 0     
 
-    def calculateRequestProcessor(self, _requestParams = []):
+
+    def requestProcessor(self, _requestParams = []):
         self.pvWattsRequestParams = list(_requestParams)
-        print(self.pvWattsRequestParams)
         self.setPvWattsRequestParams()
         self.pvWattsJsonResponse = self.sendApiRequest(self.pvWattsApiRequestUrl)
         self.parsePvWattsResponse()
-        #self.setOpenPVRequestParams()
-        #self.openPvJsonResponse = self.sendApiRequest(self.openPvApiRequestUrl)
-        #self.parsOpenPvResponse()
         self.calculateCostsAndRoi()
     
     def setPvWattsRequestParams(self):
@@ -72,6 +62,7 @@ class SolarDataProcessor:
         self.losses = self.pvWattsRequestParams[6]
         self.elecCost = self.pvWattsRequestParams[7]
 
+        #convert text array types from HTML form to index # so they are in proper form for GET request to PvWatts
         if self.array_type == "Fixed - open-rack":
             self.array_type = "0"
         elif self.array_type == "Fixed - roof-mounted":
@@ -83,6 +74,7 @@ class SolarDataProcessor:
         elif self.array_type == "2-axis tracker":
             self.array_type = "4"
 
+        #convert text module types from HTML form to index # so they are in proper form for GET request to PvWatts
         if self.module_type == "Standard (14-17%)":
             self.module_type = "0"
         elif self.module_type == "Premium (18-20%)":
