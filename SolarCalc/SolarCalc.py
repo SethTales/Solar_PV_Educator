@@ -44,7 +44,7 @@ def electricityInputData():
     #pass variables to model.py to make pvWatts API request
     requestParams = [zipCode, sysCap, azimuth, tilt, selectArrType, selectModType, losses, elecCost]
     print(requestParams)
-    solarDataProcessor.calculateRequestProcessor(requestParams)
+    solarDataProcessor.requestProcessor(requestParams)
     outputs = solarDataProcessor.getOutputs()
     for k, v in outputs.items():
         print(k, v)
