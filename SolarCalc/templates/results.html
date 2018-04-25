@@ -152,24 +152,24 @@
             
             <fieldset class="fieldset3">
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="annualKwhInfo"></img>
-                Annual kWh: <output name="annualKwh">{{outputs['anKwh']}}</output><br><br><br>
+                Annual kWh: <output name="annualKwh">{{outputs["ac_annual"]}}</output><br><br><br>
 
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costBeforeIncentivesInfo"></img>
-                Estimated cost before incentives:<br> <output name="costBeforeIncentives">${{outputs['lcEst']}} - ${{outputs['hcEst']}}</output><br><br><br>
+                Estimated cost before incentives:<br> <output name="costBeforeIncentives">${{outputs['lowCostEstimate']}} - ${{outputs['highCostEstimate']}}</output><br><br><br>
 
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="costAfterIncentivesInfo"></img>
-                Estimated cost after incentives:<br> <output name="costAfterIncentives">${{outputs['lcEstIncentives']}} - ${{outputs['hcEstIncentives']}}</output><br><br><br>
+                Estimated cost after incentives:<br> <output name="costAfterIncentives">${{outputs['lowCostAfterIncentives']}} - ${{outputs['highCostAfterIncentives']}}</output><br><br><br>
             </fieldset>
 
             <fieldset class="fieldset4">
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="breakevenInfo"></img>
-                Estimated breakeven year: <output name="breakeven">{{outputs['brkYearLow']}} - {{outputs['brkYearHigh']}}</output><br><br><br>
+                Estimated breakeven year: <output name="breakeven">{{outputs['breakevenYearLow']}} - {{outputs['breakevenYearHigh']}}</output><br><br><br>
 
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="10YearSavingsInfo"></img>
-                Estimated 10-year savings:<br> <output name="10year">$ {{outputs['10yrSvgsLow']}} - $ {{outputs['10yrSvgsHigh']}}</output><br><br><br>
+                Estimated 10-year savings:<br> <output name="10year">$ {{outputs['tenYearSavingsLow']}} - $ {{outputs['tenYearSavingsHigh']}}</output><br><br><br>
 
                 <img src="https://png.icons8.com/office/16/000000/about.png" onclick="displayTooltip(this.id)" class="info" id="20YearSavingsInfo"></img>
-                Estimated 20-year savings:<br> <output name="20year">$ {{outputs['20yrSvgsLow']}} - $ {{outputs['20yrSvgsHigh']}}</output><br><br><br>
+                Estimated 20-year savings:<br> <output name="20year">$ {{outputs['twentyYearSavingsLow']}} - $ {{outputs['twentyYearSavingsHigh']}}</output><br><br><br>
             </fieldset>
         </form>
     </div>
