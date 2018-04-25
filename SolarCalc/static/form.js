@@ -276,6 +276,30 @@ function displayTooltip(id)
     }
 }
 
+var zipList = [];
+
+function readTextFile(file)
+{
+    
+    var zipText = new XMLHttpRequest();
+    zipText.open("GET", file, true);
+    zipText.onreadystatechange = function()
+    {
+        if(zipText.readyState == 4)
+        {
+            console.log(zipText.readyState);
+            if(zipText.status == 200 || zipText.status == 0)
+            {
+                console.log(zipText.status);
+                var extractedText = zipText.responseText;
+                zipList = extractedText.split("\n");
+            }
+        }
+    }; 
+    
+    zipText.send(null);
+}
+
 function validateZip()
 {
     var zipRegEx = /^\d{5}$/;
@@ -285,10 +309,21 @@ function validateZip()
 
     if(found == true)
     {
-        console.log(found);
-        var zipError = document.getElementById('zipCodeError').style.display = 'none';
-        var zipInput = document.getElementById('zip').style.border = '2px solid green';
-        return(true);
+        var realZip = checkIfRealZip(zip);
+        console.log("realZip=" + realZip);
+        if (realZip == true)
+        {
+            console.log(found);
+            var zipError = document.getElementById('zipCodeError').style.display = 'none';
+            var zipInput = document.getElementById('zip').style.border = '2px solid green';
+            return(true);
+        }
+        else if (realZip == false)
+        {
+            var zipError = document.getElementById('zipCodeError').style.display = 'contents';
+            var zipInput = document.getElementById('zip').style.border = '2px solid red';
+            return(false);
+        }
         
     }
     else
@@ -298,6 +333,21 @@ function validateZip()
         var zipInput = document.getElementById('zip').style.border = '2px solid red';
         return(false);
     }
+}
+
+function checkIfRealZip(zip)
+{
+    console.log("zip in checkIfRealZip = " + zip);
+    console.log(zipList.length);
+    for(var i = 1; i < zipList.length; i++)
+    {        
+        if(zip == zipList[i])
+        {
+            return(true);
+        }
+    }
+
+    return(false);
 }
 
 function validateCostPerKwh()
@@ -465,6 +515,7 @@ function validateLosses()
 function validateForm()
 {
     var bool = validateZip();
+    console.log("bool from validateZip = " + bool);
     if (bool == false)
     {
         alert("One or more of your inputs is incorrect. Please check then re-submit.")
