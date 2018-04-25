@@ -1,4 +1,4 @@
-import urllib.request, json, time
+import urllib.request, json, time, copy
 
 class SolarDataProcessor:
     
@@ -7,21 +7,14 @@ class SolarDataProcessor:
         #see https://developer.nrel.gov/docs/solar/pvwatts-v5/ for more details
         #all but elecCost are string, because they are part of pvWattsApiRequestUrl
         #elecCost is float as it is used in calculations in functions below
-        self.format = "json"
-        self.api_key = "rH3Vxikvbxm5SnbW3Lxgs3c76L4hjbXph0NoQlzw"
-        self.sys_cap = "0.0"
-        self.module_type = "0"
-        self.losses = "14"
-        self.array_type = "1"
-        self.tilt = "0.0"
-        self.azimuth = "0.0"
-        self.address = "#####"
+        self.formInputReceiver = FormInputReceiver()
+        self.apiRequestProcessor = ApiRequestProcessor()
+        self.apiResponseParser = ApiResponseParser()
+        self.costAndRoiCalculator = CostAndRoiCalculator()
         self.elecCost = 0.0 
-        self.pvWattsRequestParams = []
-        self.pvWattsApiRequestUrl = "https://developer.nrel.gov/api/pvwatts/v5." + self.format + "?" + "api_key=" + self.api_key + "&address=" + self.address + \
-        "&system_capacity=" + self.sys_cap + "&azimuth=" + self.azimuth + "&tilt=" + self.tilt + "&array_type=" + self.array_type + \
-        "&module_type=" + self.module_type + "&losses=" + self.losses
         self.pvWattsJsonResponse = None
+        self.electricityProductionData = []
+        self.outputsDict = {}
 
         #GET response parameters 
         self.ac_monthly = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -29,9 +22,108 @@ class SolarDataProcessor:
         self.station_state = ""
         self.station_city = ""
 
-        #variables below are used for average cost calculations, ROI predictions and breakeven predictions
+    def requestProcessor(self, requestParams = []):
+        #transfer form data to request parameters for PvWatts
+        self.pvWattsRequestParams = self.formInputReceiver.getFormInputValues(requestParams)
+        #send request parameters to API requester class
+        self.apiRequestProcessor.setPvWattsRequestParams(self.pvWattsRequestParams)
+        #send api request and store in a JSON respoonse variable
+        self.pvWattsJsonResponse = self.apiRequestProcessor.sendApiRequest()
+        #parse response 
+        self.electricityProductionData = self.apiResponseParser.parsePvWattsResponse(self.pvWattsJsonResponse)
+        self.ac_annual = self.electricityProductionData[0]
+        print(self.electricityProductionData[0])
+        for i in range (1, 13):
+            self.ac_monthly[i - 1] = self.electricityProductionData[i]
+            print(i, self.electricityProductionData[i])
+        self.outputsDict = copy.deepcopy((self.costAndRoiCalculator.calculateCostsAndRoi(self.ac_annual, self.pvWattsRequestParams)))
+        return(self.outputsDict)
+
+class FormInputReceiver:
+    def __init__(self):
+        self.formInputKeys = ["address", "system_capacity", "azimuth", "tilt", "array_type", "module_type", "losses", "elecCost"]
+
+    def getFormInputValues(self, requestParams = []):
+        self.formInputDict = dict(zip(self.formInputKeys, requestParams))
+        return(self.formInputDict)
+
+class ApiRequestProcessor:
+    def __init__(self):
+        self.format = "json"
+        self.api_key = "rH3Vxikvbxm5SnbW3Lxgs3c76L4hjbXph0NoQlzw"
+        self.pvWattsApiRequestUrl = ""
+        self.pvWattsJsonResponse = None
+
+    def setPvWattsRequestParams(self, pvWattsRequestParams = {}):
+        print("setPvWattsRequestParams called")
+        address = pvWattsRequestParams["address"]
+        sys_cap = pvWattsRequestParams["system_capacity"]
+        azimuth = pvWattsRequestParams["azimuth"]
+        tilt = pvWattsRequestParams["tilt"]
+        array_type = pvWattsRequestParams["array_type"]
+        module_type = pvWattsRequestParams["module_type"]
+        losses = pvWattsRequestParams["losses"]
+
+        #convert text array types from HTML form to index # so they are in proper form for GET request to PvWatts
+        if array_type == "Fixed - open-rack":
+            array_type = "0"
+        elif array_type == "Fixed - roof-mounted":
+            array_type = "1"
+        elif array_type == "1-axis tracker":
+            array_type = "2"
+        elif array_type == "1-axis backtracker":
+            array_type = "3"
+        elif array_type == "2-axis tracker":
+            array_type = "4"
+
+        #convert text module types from HTML form to index # so they are in proper form for GET request to PvWatts
+        if module_type == "Standard (14-17%)":
+            module_type = "0"
+        elif module_type == "Premium (18-20%)":
+            module_type = "1"
+        elif module_type == "Thin-film (~11%)":
+            module_type = "2"
+
+        self.pvWattsApiRequestUrl = "https://developer.nrel.gov/api/pvwatts/v5." + self.format + "?" + "api_key=" + self.api_key + "&address=" + address + \
+        "&system_capacity=" + sys_cap + "&azimuth=" + azimuth + "&tilt=" + tilt + "&array_type=" + array_type + \
+        "&module_type=" + module_type + "&losses=" + losses
+        print(self.pvWattsApiRequestUrl)
+
+        #self.pvWattsJsonResponse = self.sendApiRequest()
+
+    def sendApiRequest(self):
+        print("sendApiRequest called")
+        httpResponse = urllib.request.urlopen(self.pvWattsApiRequestUrl).read().decode('utf8')
+        self.pvWattsJsonResponse = json.loads(httpResponse)
+        return(self.pvWattsJsonResponse)
+
+class ApiResponseParser:
+
+    def __init__(self):
+        
+        self.electricityProductionData = []
+
+    def parsePvWattsResponse(self, pvWattsJsonResponse):
+        if len(self.electricityProductionData) >= 1:
+            self.electricityProductionData.clear()        
+
+        self.electricityProductionData.append(pvWattsJsonResponse["outputs"]["ac_annual"])
+
+        for i in range (0, 12):
+            self.electricityProductionData.append(pvWattsJsonResponse["outputs"]["ac_monthly"][i])
+            print(self.electricityProductionData[i])
+        return(self.electricityProductionData)
+
+class CostAndRoiCalculator:
+
+    def __init__(self):
+        #self.ac_annual = 0.0
+        self.systemCapacity = 0.0
+        self.elecCostPerKwh = 0.0
         self.highAvgCostPerWatt = 3.75
         self.lowAvgCostPerWatt = 2.75
+        self.costAndRoiDict = {"ac_annual":"", "lowCostEstimate":"", "highCostEstimate":"", "lowCostAfterIncentives":"", "highCostAfterIncentives":"", "breakevenYearLow":"", \
+        "breakevenYearHigh":"", "tenYearSavingsLow":"", "tenYearSavingsHigh":"", "twentyYearSavingsLow":"", "twentyYearSavingsHigh":""}
 
         self.lowCostEstimate = 0
         self.highCostEstimate = 0
@@ -42,121 +134,44 @@ class SolarDataProcessor:
         self.tenYearSavingsLow = 0
         self.tenYearSavingsHigh = 0
         self.twentyYearSavingsLow = 0
-        self.twentyYearSavingsHigh = 0     
+        self.twentyYearSavingsHigh = 0    
 
+    def calculateCostsAndRoi(self, ac_annual, requestParams = []):
 
-    def requestProcessor(self, _requestParams = []):
-        self.pvWattsRequestParams = list(_requestParams)
-        self.setPvWattsRequestParams()
-        self.pvWattsJsonResponse = self.sendApiRequest(self.pvWattsApiRequestUrl)
-        self.parsePvWattsResponse()
-        self.calculateCostsAndRoi()
-    
-    def setPvWattsRequestParams(self):
-        self.address = self.pvWattsRequestParams[0]
-        self.sys_cap = self.pvWattsRequestParams[1]
-        self.azimuth = self.pvWattsRequestParams[2]
-        self.tilt = self.pvWattsRequestParams[3]
-        self.array_type = self.pvWattsRequestParams[4]
-        self.module_type = self.pvWattsRequestParams[5]
-        self.losses = self.pvWattsRequestParams[6]
-        self.elecCost = self.pvWattsRequestParams[7]
-
-        #convert text array types from HTML form to index # so they are in proper form for GET request to PvWatts
-        if self.array_type == "Fixed - open-rack":
-            self.array_type = "0"
-        elif self.array_type == "Fixed - roof-mounted":
-            self.array_type = "1"
-        elif self.array_type == "1-axis tracker":
-            self.array_type = "2"
-        elif self.array_type == "1-axis backtracker":
-            self.array_type = "3"
-        elif self.array_type == "2-axis tracker":
-            self.array_type = "4"
-
-        #convert text module types from HTML form to index # so they are in proper form for GET request to PvWatts
-        if self.module_type == "Standard (14-17%)":
-            self.module_type = "0"
-        elif self.module_type == "Premium (18-20%)":
-            self.module_type = "1"
-        elif self.module_type == "Thin-film (~11%)":
-            self.module_type = "2"
-
-        self.pvWattsApiRequestUrl = "https://developer.nrel.gov/api/pvwatts/v5." + self.format + "?" + "api_key=" + self.api_key + "&address=" + self.address + \
-        "&system_capacity=" + self.sys_cap + "&azimuth=" + self.azimuth + "&tilt=" + self.tilt + "&array_type=" + self.array_type + \
-        "&module_type=" + self.module_type + "&losses=" + self.losses
-
-    def sendApiRequest(self, urlStr):
-        httpResponse = urllib.request.urlopen(urlStr).read().decode('utf8')
-        jsonResponse = json.loads(httpResponse)
-        print(jsonResponse)
-        return(jsonResponse)
-    
-    def parsePvWattsResponse(self):
-        #
-        # tempList = []
-        for i in range (0, 12):
-            #tempList.append((self.pvWattsJsonResponse["outputs"]["ac_monthly"][i]))
-            #self.ac_monthly[i] = (['{0:.2f}'.format(tempList[i])])
-            self.ac_monthly[i] = (self.pvWattsJsonResponse["outputs"]["ac_monthly"][i])
-        print(self.ac_monthly)
-        self.ac_annual = (self.pvWattsJsonResponse["outputs"]["ac_annual"])
-        print(self.ac_annual)
-        self.capacity_factor = (self.pvWattsJsonResponse["outputs"]["capacity_factor"])
-        print(self.capacity_factor)
-        self.station_city = (self.pvWattsJsonResponse["station_info"]["city"])
-        print(self.station_city)
-        self.station_state = (self.pvWattsJsonResponse["station_info"]["state"])
-        print(self.station_state)
-
-    def calculateCostsAndRoi(self):
-        self.lowCostEstimate = self.lowAvgCostPerWatt * float(self.sys_cap) * 1000
-        self.highCostEstimate = self.highAvgCostPerWatt * float(self.sys_cap) * 1000      
+        self.lowCostEstimate = self.lowAvgCostPerWatt * float(requestParams["system_capacity"]) * 1000
+        self.highCostEstimate = self.highAvgCostPerWatt * float(requestParams["system_capacity"]) * 1000      
 
         self.lowCostAfterIncentives = self.lowCostEstimate * 0.70
         self.highCostAfterIncentives = self.highCostEstimate * 0.70       
 
-        self.breakevenYearLow = self.lowCostAfterIncentives / (float(self.ac_annual) * float(self.elecCost))
-        self.breakevenYearHigh = self.highCostAfterIncentives / (float(self.ac_annual) * float(self.elecCost))          
+        self.breakevenYearLow = self.lowCostAfterIncentives / (float(ac_annual) * float(requestParams["elecCost"]))
+        self.breakevenYearHigh = self.highCostAfterIncentives / (float(ac_annual) * float(requestParams["elecCost"]))          
 
-        self.tenYearSavingsLow = (float(self.ac_annual) * float(self.elecCost) * 10) - self.highCostAfterIncentives 
-        self.tenYearSavingsHigh = (float(self.ac_annual) * float(self.elecCost) * 10) - self.lowCostAfterIncentives 
-        self.twentyYearSavingsLow = (float(self.ac_annual) * float(self.elecCost) * 20) - self.highCostAfterIncentives 
-        self.twentyYearSavingsHigh = (float(self.ac_annual) * float(self.elecCost) * 20) - self.lowCostAfterIncentives 
+        self.tenYearSavingsLow = (float(ac_annual) * float(requestParams["elecCost"]) * 10) - self.highCostAfterIncentives 
+        self.tenYearSavingsHigh = (float(ac_annual) * float(requestParams["elecCost"]) * 10) - self.lowCostAfterIncentives 
+        self.twentyYearSavingsLow = (float(ac_annual) * float(requestParams["elecCost"]) * 20) - self.highCostAfterIncentives 
+        self.twentyYearSavingsHigh = (float(ac_annual) * float(requestParams["elecCost"]) * 20) - self.lowCostAfterIncentives 
 
-        self.ac_annual = "{:.2f}".format(self.ac_annual)
-        self.lowCostEstimate = "{:.2f}".format(self.lowCostEstimate)
-        self.highCostEstimate = "{:.2f}".format(self.highCostEstimate)
-        self.lowCostAfterIncentives = "{:.2f}".format(self.lowCostAfterIncentives)
-        self.highCostAfterIncentives = "{:.2f}".format(self.highCostAfterIncentives)
-        self.breakevenYearLow = int(self.breakevenYearLow)
-        self.breakevenYearHigh = int(self.breakevenYearHigh)
-        self.tenYearSavingsLow = "{:.2f}".format(self.tenYearSavingsLow)
-        self.tenYearSavingsHigh = "{:.2f}".format(self.tenYearSavingsHigh)
-        self.twentyYearSavingsLow = "{:.2f}".format(self.twentyYearSavingsLow)
-        self.twentyYearSavingsHigh = "{:.2f}".format(self.twentyYearSavingsHigh)
+        self.costAndRoiDict["ac_annual"] = "{:.2f}".format(ac_annual)
+        self.costAndRoiDict["lowCostEstimate"] = "{:.2f}".format(self.lowCostEstimate)
+        self.costAndRoiDict["highCostEstimate"] = "{:.2f}".format(self.highCostEstimate)
+        self.costAndRoiDict["lowCostAfterIncentives"] = "{:.2f}".format(self.lowCostAfterIncentives)
+        self.costAndRoiDict["highCostAfterIncentives"] = "{:.2f}".format(self.highCostAfterIncentives)
+        self.costAndRoiDict["breakevenYearLow"] = int(self.breakevenYearLow)
+        self.costAndRoiDict["breakevenYearHigh"] = int(self.breakevenYearHigh)
+        self.costAndRoiDict["tenYearSavingsLow"] = "{:.2f}".format(self.tenYearSavingsLow)
+        self.costAndRoiDict["tenYearSavingsHigh"] = "{:.2f}".format(self.tenYearSavingsHigh)
+        self.costAndRoiDict["twentyYearSavingsLow"] = "{:.2f}".format(self.twentyYearSavingsLow)
+        self.costAndRoiDict["twentyYearSavingsHigh"] = "{:.2f}".format(self.twentyYearSavingsHigh)
 
-        print(self.lowCostEstimate)
-        print(self.highCostEstimate)
-        print(self.lowCostAfterIncentives)
-        print(self.highCostAfterIncentives)
-        print(self.breakevenYearLow)
-        print(self.breakevenYearHigh)
-        print(self.tenYearSavingsLow)
-        print(self.tenYearSavingsHigh)
-        print(self.twentyYearSavingsLow)
-        print(self.twentyYearSavingsHigh)
+        return(self.costAndRoiDict)
 
-        #self.breakevenYearLow = float(self.averageCostEstimate) / (float(self.ac_annual) * float(self.elecCost))
-        #print(self.breakevenYear) 
 
-    def getOutputs(self):
-        outputsDict = {'anKwh': self.ac_annual, 'lcEst': str(self.lowCostEstimate), 'hcEst': str(self.highCostEstimate), \
-        'lcEstIncentives': str(self.lowCostAfterIncentives), 'hcEstIncentives': str(self.highCostAfterIncentives), \
-        'brkYearLow': str(self.breakevenYearLow), 'brkYearHigh': str(self.breakevenYearHigh), '10yrSvgsLow': str(self.tenYearSavingsLow), \
-        '10yrSvgsHigh': str(self.tenYearSavingsHigh), '20yrSvgsLow': str(self.twentyYearSavingsLow), '20yrSvgsHigh': str(self.twentyYearSavingsHigh) }
 
-        return(outputsDict)
+    
+
+
+        
 
 
 

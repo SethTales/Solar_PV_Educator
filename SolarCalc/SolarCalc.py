@@ -43,13 +43,9 @@ def electricityInputData():
 
     #pass variables to model.py to make pvWatts API request
     requestParams = [zipCode, sysCap, azimuth, tilt, selectArrType, selectModType, losses, elecCost]
-    print(requestParams)
-    solarDataProcessor.requestProcessor(requestParams)
-    outputs = solarDataProcessor.getOutputs()
+    outputs = solarDataProcessor.requestProcessor(requestParams)
     for k, v in outputs.items():
         print(k, v)
-   
-    #passRequestParams(requestParams)
 
     monthlyData = resetMonthlyElecData()
 
